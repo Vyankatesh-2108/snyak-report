@@ -40,7 +40,7 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-web</artifactId>
-            <version>6.0.23</version>
+            <version>6.2.8</version>
             <scope>provided</scope>
             <exclusions>
                 <exclusion>
@@ -194,7 +194,7 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-            <version>3.4</version>
+            <version>3.18.0</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -256,7 +256,7 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-web</artifactId>
-            <version>6.1.14</version>
+            <version>6.2.8</version>
             <scope>provided</scope>
             <exclusions>
                 <exclusion>
@@ -283,14 +283,14 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-beans</artifactId>
-            <version>5.3.24</version>
+            <version>6.2.11</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
-            <version>5.3.24</version>
+            <version>6.2.11</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -303,7 +303,7 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
-            <version>5.3.19</version>
+            <version>6.2.10</version>
             <scope>provided</scope>
             <exclusions>
                 <exclusion>
