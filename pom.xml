@@ -1,25 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.miniorange.sso.saml</groupId>
-    <artifactId>confluence-sso</artifactId>
-
-    <version>4.1.2</version>
-
-
+    <groupId>com.miniorange.usersync</groupId>
+    <artifactId>miniorange-usersync-confluence</artifactId>
+    <version>6.2.1</version>
     <organization>
         <name>miniOrange</name>
-        <url>https://www.miniorange.com/</url>
+        <url>http://www.miniorange.com/</url>
     </organization>
-
-    <name>Single Sign On (SSO) for Confluence SAML</name>
-
+    <name>User Provisioning/Sync for Confluence</name>
+    <description>This is the miniOrange User Sync plugin, which supports Microsoft Azure AD, Okta, OneLogin, G Suite and  Keycloak</description>
     <packaging>atlassian-plugin</packaging>
-
     <parent>
         <groupId>com.miniorange.sso.confluence</groupId>
         <artifactId>parent</artifactId>
@@ -28,14 +20,33 @@
     </parent>
 
     <dependencies>
-        <!-- <dependency> <groupId>junit</groupId> <artifactId>junit</artifactId>
-            <version>4.10</version> <scope>test</scope> </dependency> -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.10</version>
+            <scope>test</scope>
+        </dependency>
+        <!--        <dependency>-->
+        <!--            <groupId>com.atlassian.confluence</groupId>-->
+        <!--            <artifactId>confluence</artifactId>-->
+        <!--            <version>${confluence.version}</version>-->
+        <!--            <scope>provided</scope>-->
+        <!--        </dependency>-->
+
         <dependency>
             <groupId>com.atlassian.confluence</groupId>
             <artifactId>confluence</artifactId>
             <version>${confluence.version}</version>
             <scope>provided</scope>
             <exclusions>
+                <exclusion>
+                    <groupId>joda-time</groupId>
+                    <artifactId>joda-time</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.google.code.gson</groupId>
+                    <artifactId>gson</artifactId>
+                </exclusion>
                 <exclusion>
                     <groupId>xalan</groupId>
                     <artifactId>xalan</artifactId>
@@ -56,6 +67,10 @@
                     <groupId>com.fasterxml.jackson.core</groupId>
                     <artifactId>jackson-databind</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>com.atlassian.json</groupId>
+                    <artifactId>atlassian-json-jsonorg</artifactId>
+                </exclusion>
                 <!-- Exclude vulnerable log4j 1.x -->
                 <exclusion>
                     <groupId>log4j</groupId>
@@ -67,13 +82,53 @@
                     <artifactId>commons-beanutils</artifactId>
                 </exclusion>
             </exclusions>
+
         </dependency>
         <dependency>
-            <groupId>org.apache.struts</groupId>
-            <artifactId>struts2-velocity-plugin</artifactId>
-            <version>6.3.0.2-atlassian-5</version>
+            <groupId>com.atlassian.json</groupId>
+            <artifactId>atlassian-json-jsonorg</artifactId>
+            <version>1.1.0</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.atlassian.plugins</groupId>
+            <artifactId>atlassian-plugins-osgi-javaconfig</artifactId>
+            <version>${osgi.javaconfig.version}</version>
+        </dependency>
+        <!-- OSGi Java Config dependencies -->
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.framework</artifactId>
+            <version>4.0.0</version>
+            <scope>provided</scope>
+        </dependency>
+
+
+        <dependency>
+            <groupId>commons-fileupload</groupId>
+            <artifactId>commons-fileupload</artifactId>
+            <version>1.6.0</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+            <version>6.2.8</version>
             <scope>provided</scope>
             <exclusions>
+                <exclusion>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring-beans</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring-core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring-context</artifactId>
+                </exclusion>
                 <!-- Exclude vulnerable log4j 1.x -->
                 <exclusion>
                     <groupId>log4j</groupId>
@@ -85,17 +140,28 @@
                     <artifactId>commons-beanutils</artifactId>
                 </exclusion>
             </exclusions>
+
+        </dependency>
+        <!-- WIRED TEST RUNNER DEPENDENCIES -->
+        <dependency>
+            <groupId>com.atlassian.plugins</groupId>
+            <artifactId>atlassian-plugins-osgi-testrunner</artifactId>
+            <version>${plugin.testrunner.version}</version>
+            <scope>test</scope>
         </dependency>
 
-
-        <!-- https://mvnrepository.com/artifact/org.slf4j/jul-to-slf4j -->
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>jul-to-slf4j</artifactId>
-            <version>2.0.9</version>
+            <groupId>javax.ws.rs</groupId>
+            <artifactId>jsr311-api</artifactId>
+            <version>1.1.1</version>
             <scope>provided</scope>
         </dependency>
-
+        <dependency>
+            <groupId>com.atlassian.plugins</groupId>
+            <artifactId>atlassian-plugins-api</artifactId>
+            <version>4.4.8</version>
+            <scope>provided</scope>
+        </dependency>
 
         <dependency>
             <groupId>com.atlassian.plugin</groupId>
@@ -105,123 +171,27 @@
         </dependency>
 
         <dependency>
-            <groupId>javax.inject</groupId>
-            <artifactId>javax.inject</artifactId>
-            <version>1</version>
+            <groupId>com.atlassian.upm</groupId>
+            <artifactId>licensing-api</artifactId>
+            <version>1001.3.27</version>
             <scope>provided</scope>
         </dependency>
-
-        <!-- WIRED TEST RUNNER DEPENDENCIES -->
-
         <dependency>
-            <groupId>javax.ws.rs</groupId>
-            <artifactId>jsr311-api</artifactId>
-            <version>1.1.1</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-            <version>4.0.1</version>
+            <groupId>com.atlassian.upm</groupId>
+            <artifactId>upm-api</artifactId>
+            <version>1001.3.27</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
-            <groupId>jakarta.servlet</groupId>
-            <artifactId>jakarta.servlet-api</artifactId>
-            <version>6.0.0</version>
-            <scope>provided</scope>
-            <optional>true</optional>
-        </dependency>
-
-        <dependency>
-            <groupId>jakarta.ws.rs</groupId>
-            <artifactId>jakarta.ws.rs-api</artifactId>
-            <version>3.1.0</version>
-            <scope>provided</scope>
-            <optional>true</optional>
-        </dependency>
-
-        <dependency>
-            <groupId>jakarta.inject</groupId>
-            <artifactId>jakarta.inject-api</artifactId>
-            <version>2.0.1</version>
-            <scope>provided</scope>
-            <optional>true</optional>
-        </dependency>
-
-        <dependency>
-            <groupId>javax.ws.rs</groupId>
-            <artifactId>javax.ws.rs-api</artifactId>
-            <version>2.1</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>33.4.8-jre</version>
-            <exclusions>
-                <!-- Exclude vulnerable log4j 1.x -->
-                <exclusion>
-                    <groupId>log4j</groupId>
-                    <artifactId>log4j</artifactId>
-                </exclusion>
-                <!-- Exclude vulnerable commons-beanutils -->
-                <exclusion>
-                    <groupId>commons-beanutils</groupId>
-                    <artifactId>commons-beanutils</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>com.google.code.gson</groupId>
-            <artifactId>gson</artifactId>
-            <version>2.10.1</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.owasp.encoder</groupId>
-            <artifactId>encoder</artifactId>
-            <version>1.2.3</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>2.0.13</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>com.atlassian.crowd</groupId>
-            <artifactId>embedded-crowd-api</artifactId>
-            <version>6.0.0</version>
-            <scope>provided</scope>
+            <groupId>com.miniorange.license</groupId>
+            <artifactId>license-handler</artifactId>
+            <version>1.0.0</version>
             <exclusions>
                 <exclusion>
-                    <groupId>com.fasterxml.jackson.core</groupId>
-                    <artifactId>jackson-databind</artifactId>
+                    <groupId>com.auth0</groupId>
+                    <artifactId>java-jwt</artifactId>
                 </exclusion>
-                <!-- Exclude vulnerable log4j 1.x -->
-                <exclusion>
-                    <groupId>log4j</groupId>
-                    <artifactId>log4j</artifactId>
-                </exclusion>
-                <!-- Exclude vulnerable commons-beanutils -->
-                <exclusion>
-                    <groupId>commons-beanutils</groupId>
-                    <artifactId>commons-beanutils</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-        <dependency>
-            <groupId>com.atlassian.</groupId>
-            <artifactId>webwork-compat</artifactId>
-            <version>1.33</version>
-            <exclusions>
                 <!-- Exclude vulnerable log4j 1.x -->
                 <exclusion>
                     <groupId>log4j</groupId>
@@ -241,27 +211,11 @@
             <version>6.0.1</version>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>com.atlassian.user</groupId>
-            <artifactId>atlassian-user</artifactId>
-            <version>5.5.9</version>
-            <type>pom</type>
-        </dependency>
-
 
         <dependency>
-            <groupId>com.atlassian.seraph</groupId>
-            <artifactId>atlassian-seraph</artifactId>
-            <version>4.2.1-6826444</version>
-            <scope>provided</scope>
-        </dependency>
-
-
-
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-context</artifactId>
-            <version>6.2.13</version>
+            <groupId>com.atlassian.crowd</groupId>
+            <artifactId>crowd-api</artifactId>
+            <version>3.3.3</version>
             <scope>provided</scope>
             <exclusions>
                 <!-- Exclude vulnerable log4j 1.x -->
@@ -277,6 +231,39 @@
             </exclusions>
         </dependency>
 
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.14.0</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.owasp.encoder</groupId>
+            <artifactId>encoder</artifactId>
+            <version>1.2.3</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.atlassian.crowd</groupId>
+            <artifactId>embedded-crowd-api</artifactId>
+            <version>6.0.0</version>
+            <scope>provided</scope>
+            <exclusions>
+                <!-- Exclude vulnerable log4j 1.x -->
+                <exclusion>
+                    <groupId>log4j</groupId>
+                    <artifactId>log4j</artifactId>
+                </exclusion>
+                <!-- Exclude vulnerable commons-beanutils -->
+                <exclusion>
+                    <groupId>commons-beanutils</groupId>
+                    <artifactId>commons-beanutils</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <!-- dependency used to maintain active object -->
         <dependency>
             <groupId>com.atlassian.activeobjects</groupId>
             <artifactId>activeobjects-plugin</artifactId>
@@ -285,89 +272,10 @@
         </dependency>
 
         <dependency>
-            <groupId>com.atlassian.upm</groupId>
-            <artifactId>licensing-api</artifactId>
-            <version>1001.3.27</version>
+            <groupId>com.atlassian.crowd</groupId>
+            <artifactId>crowd-integration-api</artifactId>
+            <version>3.3.3</version>
             <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
-            <version>4.5.14</version>
-            <exclusions>
-                <!-- Exclude vulnerable log4j 1.x -->
-                <exclusion>
-                    <groupId>log4j</groupId>
-                    <artifactId>log4j</artifactId>
-                </exclusion>
-                <!-- Exclude vulnerable commons-beanutils -->
-                <exclusion>
-                    <groupId>commons-beanutils</groupId>
-                    <artifactId>commons-beanutils</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>commons-codec</groupId>
-                    <artifactId>commons-codec</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpcore</artifactId>
-            <version>4.4.16</version>
-        </dependency>
-
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-            <version>2.15.1</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-csv</artifactId>
-            <version>1.9.0</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-            <version>3.18.0</version>
-            <scope>provided</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>commons-io</groupId>
-                    <artifactId>commons-io</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>commons-fileupload</groupId>
-                    <artifactId>commons-fileupload</artifactId>
-                </exclusion>
-                <!-- Exclude vulnerable log4j 1.x -->
-                <exclusion>
-                    <groupId>log4j</groupId>
-                    <artifactId>log4j</artifactId>
-                </exclusion>
-                <!-- Exclude vulnerable commons-beanutils -->
-                <exclusion>
-                    <groupId>commons-beanutils</groupId>
-                    <artifactId>commons-beanutils</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-        <dependency>
-            <groupId>commons-fileupload</groupId>
-            <artifactId>commons-fileupload</artifactId>
-            <version>1.6.0</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>commons-validator</groupId>
-            <artifactId>commons-validator</artifactId>
-            <version>1.9.0</version>
             <exclusions>
                 <!-- Exclude vulnerable log4j 1.x -->
                 <exclusion>
@@ -383,120 +291,32 @@
         </dependency>
 
         <dependency>
-            <groupId>com.atlassian.templaterenderer</groupId>
-            <artifactId>atlassian-template-renderer-velocity16-plugin</artifactId>
-            <version>5.0.4</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.atlassian.templaterenderer</groupId>
-            <artifactId>atlassian-template-renderer-api</artifactId>
-            <version>5.0.4</version>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>4.0.1</version>
             <scope>provided</scope>
         </dependency>
 
-
-
+        <!-- Jakarta Servlet API (optional, for Confluence 10.x+) -->
         <dependency>
-            <groupId>org.apache.santuario</groupId>
-            <artifactId>xmlsec</artifactId>
-            <version>3.0.3</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.xmlunit</groupId>
-                    <artifactId>xmlunit-core</artifactId>
-                </exclusion>
-                <!-- Exclude vulnerable log4j 1.x -->
-                <exclusion>
-                    <groupId>log4j</groupId>
-                    <artifactId>log4j</artifactId>
-                </exclusion>
-                <!-- Exclude vulnerable commons-beanutils -->
-                <exclusion>
-                    <groupId>commons-beanutils</groupId>
-                    <artifactId>commons-beanutils</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>jakarta.xml.bind</groupId>
-                    <artifactId>jakarta.xml.bind-api</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>commons-codec</groupId>
-                    <artifactId>commons-codec</artifactId>
-                </exclusion>
-            </exclusions>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <version>6.0.0</version>
+            <scope>provided</scope>
+            <optional>true</optional>
         </dependency>
+
         <dependency>
-            <groupId>org.xmlunit</groupId>
-            <artifactId>xmlunit-core</artifactId>
-            <version>2.10.0</version>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.34</version>
             <scope>provided</scope>
         </dependency>
+        
         <dependency>
-            <groupId>com.opencsv</groupId>
-            <artifactId>opencsv</artifactId>
-            <version>5.9</version>
-            <exclusions>
-                <!-- Exclude vulnerable log4j 1.x -->
-                <exclusion>
-                    <groupId>log4j</groupId>
-                    <artifactId>log4j</artifactId>
-                </exclusion>
-                <!-- Exclude vulnerable commons-beanutils -->
-                <exclusion>
-                    <groupId>commons-beanutils</groupId>
-                    <artifactId>commons-beanutils</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.commons</groupId>
-                    <artifactId>commons-text</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.bouncycastle</groupId>
-            <artifactId>bcprov-jdk18on</artifactId>
-            <version>1.79</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <!-- https://mvnrepository.com/artifact/ca.juliusdavies/not-yet-commons-ssl -->
-        <dependency>
-            <groupId>ca.juliusdavies</groupId>
-            <artifactId>not-yet-commons-ssl</artifactId>
-            <version>0.3.17</version>
-            <exclusions>
-                <!-- Exclude vulnerable log4j 1.x -->
-                <exclusion>
-                    <groupId>log4j</groupId>
-                    <artifactId>log4j</artifactId>
-                </exclusion>
-                <!-- Exclude vulnerable commons-beanutils -->
-                <exclusion>
-                    <groupId>commons-beanutils</groupId>
-                    <artifactId>commons-beanutils</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.jsoup</groupId>
-            <artifactId>jsoup</artifactId>
-            <version>1.17.2</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>com.atlassian.json</groupId>
-            <artifactId>atlassian-json-jsonorg</artifactId>
-            <version>1.1.0</version>
-            <scope>provided</scope>
-        </dependency>
-
-
-        <dependency>
-            <groupId>com.atlassian.upm</groupId>
-            <artifactId>upm-api</artifactId>
-            <version>1001.3.27</version>
+            <groupId>com.atlassian.annotations</groupId>
+            <artifactId>atlassian-annotations</artifactId>
+            <version>5.0.0</version>
             <scope>provided</scope>
         </dependency>
 
@@ -510,117 +330,9 @@
                     <groupId>com.fasterxml.jackson.core</groupId>
                     <artifactId>jackson-databind</artifactId>
                 </exclusion>
-                <!-- Exclude vulnerable log4j 1.x -->
                 <exclusion>
-                    <groupId>log4j</groupId>
-                    <artifactId>log4j</artifactId>
-                </exclusion>
-                <!-- Exclude vulnerable commons-beanutils -->
-                <exclusion>
-                    <groupId>commons-beanutils</groupId>
-                    <artifactId>commons-beanutils</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-beans</artifactId>
-            <version>6.2.11</version>
-            <scope>provided</scope>
-            <exclusions>
-                <!-- Exclude vulnerable log4j 1.x -->
-                <exclusion>
-                    <groupId>log4j</groupId>
-                    <artifactId>log4j</artifactId>
-                </exclusion>
-                <!-- Exclude vulnerable commons-beanutils -->
-                <exclusion>
-                    <groupId>commons-beanutils</groupId>
-                    <artifactId>commons-beanutils</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-        <dependency>
-            <groupId>com.atlassian.spring</groupId>
-            <artifactId>atlassian-spring</artifactId>
-            <version>3.0.0</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>com.atlassian.core</groupId>
-            <artifactId>atlassian-core</artifactId>
-            <version>9.0.0</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <!--        <dependency>-->
-        <!--            <groupId>org.bouncycastle</groupId>-->
-        <!--            <artifactId>bcprov-jdk18on</artifactId>-->
-        <!--            <version>1.77</version>-->
-        <!--            <scope>provided</scope>-->
-        <!--        </dependency>-->
-
-        <dependency>
-            <groupId>org.bouncycastle</groupId>
-            <artifactId>bcpkix-jdk18on</artifactId>
-            <version>1.79</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>com.atlassian.annotations</groupId>
-            <artifactId>atlassian-annotations</artifactId>
-            <version>5.0.0</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <!-- Javax OneLogin (for confluence <10) -->
-        <dependency>
-            <groupId>com.onelogin</groupId>
-            <artifactId>java-saml</artifactId>
-            <version>2.9.0</version>
-            <optional>true</optional>
-            <exclusions>
-                <exclusion>
-                    <groupId>commons-codec</groupId>
-                    <artifactId>commons-codec</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-        <!-- SAML dependencies -->
-        <dependency>
-            <groupId>com.onelogin</groupId>
-            <artifactId>java-saml-core</artifactId>
-            <version>3.0.0.231010</version>
-            <optional>true</optional>
-        </dependency>
-
-        <dependency>
-            <groupId>com.onelogin</groupId>
-            <artifactId>java-saml-servlet-jakarta</artifactId>
-            <version>3.0.0.231010</version>
-            <scope>compile</scope>
-            <optional>true</optional>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-api</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.commons</groupId>
-                    <artifactId>commons-lang3</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.fasterxml.woodstox</groupId>
-                    <artifactId>woodstox-core</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.santuario</groupId>
-                    <artifactId>xmlsec</artifactId>
+                    <groupId>com.fasterxml.jackson.module</groupId>
+                    <artifactId>jackson-module-jaxb-annotations</artifactId>
                 </exclusion>
                 <!-- Exclude vulnerable log4j 1.x -->
                 <exclusion>
@@ -632,30 +344,7 @@
                     <groupId>commons-beanutils</groupId>
                     <artifactId>commons-beanutils</artifactId>
                 </exclusion>
-                <exclusion>
-                    <groupId>commons-codec</groupId>
-                    <artifactId>commons-codec</artifactId>
-                </exclusion>
             </exclusions>
-        </dependency>
-
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>1.18.30</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.atlassian.plugins</groupId>
-            <artifactId>atlassian-plugins-core</artifactId>
-            <version>7.0.4</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>com.miniorange.usersync</groupId>
-            <artifactId>miniorange-usersync-confluence</artifactId>
-            <version>6.2.1</version>
         </dependency>
 
         <!-- Fixed version for commons-beanutils as per vulnerability report -->
@@ -667,7 +356,7 @@
         </dependency>
 
         <!-- Note: log4j 1.x is end-of-life. Migration to log4j 2.x is recommended.
-             Using slf4j-log4j12 bridge as a temporary solution -->
+             Using slf4j-reload4j bridge as a temporary solution -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-reload4j</artifactId>
@@ -676,24 +365,6 @@
         </dependency>
 
     </dependencies>
-
-     <repositories>
-            <repository>
-                <id>atlassian-3rdparty</id>
-                <url>https://packages.atlassian.com/maven-3rdparty/</url>
-                <releases>
-                    <enabled>true</enabled>
-                </releases>
-                <snapshots>
-                    <enabled>false</enabled>
-                </snapshots>
-            </repository>
-
-             <repository>
-                 <id>atlassian</id>
-                 <url>https://maven.jumpmind.com/repo/</url>
-             </repository>
-        </repositories>
 
 
     <build>
@@ -711,82 +382,50 @@
                         <exclude>org.apache.commons:commons-lang3</exclude>
                         <exclude>com.atlassian.plugin:atlassian-spring-scanner-annotation</exclude>
                         <exclude>com.google.code.findbugs:jsr305</exclude>
+                        <exclude>com.atlassian.annotations:atlassian-annotations</exclude>
                         <exclude>com.google.guava:guava</exclude>
                         <exclude>org.apache.httpcomponents:httpclient</exclude>
                         <exclude>org.apache.httpcomponents:httpcore</exclude>
                         <exclude>org.slf4j:jcl-over-slf4j</exclude>
                         <exclude>org.slf4j:jul-to-slf4j</exclude>
-
                     </banningExcludes>
+
 
                     <!-- See here for an explanation of default instructions: -->
                     <!-- https://developer.atlassian.com/docs/advanced-topics/configuration-of-instructions-in-atlassian-plugins -->
                     <instructions>
                         <Atlassian-Plugin-Key>${atlassian.plugin.key}</Atlassian-Plugin-Key>
+
                         <!-- Add package to export here -->
                         <Export-Package>
-                            com.miniorange.sso.saml
+                            com.miniorange.confluence.api,
                         </Export-Package>
 
                         <!-- Add package import here -->
                         <Import-Package>
                             org.springframework.beans.factory,
+                            common.api.*,
                             org.springframework.context,
                             org.springframework.context.event,
                             org.springframework.osgi.*;resolution:="optional",
                             org.eclipse.gemini.blueprint.*;resolution:="optional",
-                            com.google.gson.*;resolution:=optional,
-                            com.atlassian.core.filters.*;resolution:="optional",
-                            com.atlassian.struts.*;resolution:="optional",
-                            com.atlassian.xwork.*;resolution:="optional",
+                            com.atlassian.plugins.rest.common.security;resolution:="optional",
+                            com.atlassian.plugins.rest.api.security.annotation;resolution:="optional",
+                            org.apache.struts2.*;resolution:="optional",
+                            com.atlassian.core.*;resolution:="optional",
+                            !com.google.gson,
                             *;resolution:="optional",
-                            com.miniorange.confluence.api,
                         </Import-Package>
 
                         <!-- Ensure plugin is spring powered -->
                         <Spring-Context>*</Spring-Context>
                     </instructions>
-                    <pluginDependencies>
-                        <pluginDependency>
-                            <groupId>com.miniorange.usersync</groupId>
-                            <artifactId>miniorange-usersync-confluence</artifactId>
-                        </pluginDependency>
-                    </pluginDependencies>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>com.atlassian.plugin</groupId>
-                <artifactId>atlassian-spring-scanner-maven-plugin</artifactId>
-                <version>${atlassian.spring.scanner.version}</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>atlassian-spring-scanner</goal>
-                        </goals>
-                        <phase>process-classes</phase>
-                    </execution>
-                </executions>
-                <configuration>
-                    <verbose>false</verbose>
                 </configuration>
             </plugin>
             <plugin>
                 <groupId>org.sonarsource.scanner.maven</groupId>
                 <artifactId>sonar-maven-plugin</artifactId>
                 <version>3.10.0.2594</version>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.11.0</version>
-                <configuration>
-                    <source>11</source>
-                    <target>11</target>
-                    <encoding>UTF-8</encoding>
-                    <compilerArgs>
-                        <arg>-parameters</arg>
-                    </compilerArgs>
-                </configuration>
             </plugin>
         </plugins>
     </build>
@@ -797,13 +436,12 @@
         <amps.version>8.13.0</amps.version>
         <plugin.testrunner.version>2.0.2</plugin.testrunner.version>
         <atlassian.spring.scanner.version>2.2.0</atlassian.spring.scanner.version>
+        <osgi.javaconfig.version>0.2.0</osgi.javaconfig.version>
+        <spring.version>4.2.5.RELEASE</spring.version>
         <!-- This property ensures consistency between the key in atlassian-plugin.xml and the OSGi bundle's key. -->
         <atlassian.plugin.key>${project.groupId}.${project.artifactId}</atlassian.plugin.key>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
     </properties>
-
-
-    <description>Boost Atlassian Security with Confluence SAML Single Sign On (SSO) + User Sync (SCIM). Supports Okta, ADFS, Azure AD, Google Apps, OneLogin and all SAML compliant IDPs.</description>
 </project>
